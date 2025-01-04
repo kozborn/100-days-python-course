@@ -1,4 +1,4 @@
 .idea
 course-info.yaml
 course-remote-info.yaml
-__pycache__/
+**/__pycache__/
