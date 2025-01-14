@@ -16,13 +16,15 @@ class Snake:
         self.head = self.body[0]
     def create_snake(self):
         for position in STARTING_POSITIONS:
-            turtle = Turtle()
-            turtle.color("white")
-            turtle.shape("square")
-            turtle.speed(0)
-            turtle.penup()
-            turtle.goto(position)
-            self.body.append(turtle)
+            self.add_segment(position)
+
+    def add_segment(self, position):
+        turtle = Turtle()
+        turtle.color("white")
+        turtle.shape("square")
+        turtle.penup()
+        turtle.goto(position)
+        self.body.append(turtle)
 
     def move(self):
         for seg_num in range(len(self.body) - 1, 0, -1):
@@ -50,4 +52,8 @@ class Snake:
         print("Turning Right")
         if self.head.heading() != LEFT:
             self.head.setheading(RIGHT)
+
+    def grow(self):
+        print("Growing")
+        self.add_segment(self.body[-1].position())
 
