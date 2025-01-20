@@ -43,7 +43,7 @@ print(data[data.temp == data.temp.max()])
 
 # Get Row data value
 monday = data[data.day == "Monday"]
-monday_temp = int(monday.temp)
+monday_temp = monday.temp
 monday_temp_F = monday_temp * 9/5 + 32
 print(monday_temp_F)
 
@@ -57,27 +57,23 @@ data.to_csv("new_data.csv")
 
 
 #Central Park Squirrel Data Analysis
-import pandas
+import pandas as pd
 
-data = pandas.read_csv("2018_Central_Park_Squirrel_Census_-_Squirrel_Data.csv")
-grey_squirrels_count = len(data[data["Primary Fur Color"] == "Gray"])
-red_squirrels_count = len(data[data["Primary Fur Color"] == "Cinnamon"])
-black_squirrels_count = len(data[data["Primary Fur Color"] == "Black"])
-print(grey_squirrels_count)
-print(red_squirrels_count)
-print(black_squirrels_count)
+data = pd.read_csv("2018_Central_Park_Squirrel_Census_-_Squirrel_Data.csv")
+
+d = pd.DataFrame(data["Primary Fur Color"].value_counts())
+
+d.to_csv("new_data_my_attempt.csv")
+
+data = pd.read_csv("2018_Central_Park_Squirrel_Census_-_Squirrel_Data.csv")
+gray = data[data["Primary Fur Color"] == "Gray"]
+red =  data[data["Primary Fur Color"] == "Cinnamon"]
+black =  data[data["Primary Fur Color"] == "Black"]
 
 data_dict = {
     "Fur Color": ["Gray", "Cinnamon", "Black"],
-    "Count": [grey_squirrels_count, red_squirrels_count, black_squirrels_count]
+    "Count": [len(gray), len(red), len(black)]
 }
 
-df = pandas.DataFrame(data_dict)
-df.to_csv("squirrel_count.csv")
-
-
-
-
-
-
-
+print(pd.DataFrame(data_dict))
+pd.DataFrame(data_dict).to_csv("new_data_my_attempt2.csv")
