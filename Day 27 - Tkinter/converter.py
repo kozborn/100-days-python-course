@@ -20,9 +20,6 @@ result.grid(column=1, row=1)
 km_label = tk.Label(text="km")
 km_label.grid(column=2, row=1)
 
-
-
-
 def convert_to_km():
     m_input.get()
     r = float(m_input.get()) * 1.60934
