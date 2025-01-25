@@ -1,2 +1,2 @@
-app_password = "pass"
-my_email = "email"
+app_password = "<password>"
+my_email = "<email>"
