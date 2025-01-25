@@ -15,6 +15,6 @@ for (key, value) in student_df.items():
     print(value)
 
 for (index, row) in student_df.iterrows():
-
+    print(row.score)
 
 
