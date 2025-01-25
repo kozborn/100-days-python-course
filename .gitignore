@@ -2,3 +2,5 @@
 course-info.yaml
 course-remote-info.yaml
 **/__pycache__/
+**/passwd.py
+**/pass*

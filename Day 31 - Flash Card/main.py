@@ -81,3 +81,7 @@ wrong_button.grid(row=1, column=0)
 
 next_card()
 window.mainloop()
+
+
+chancarjacekchanek
+chancarjacekchanek
