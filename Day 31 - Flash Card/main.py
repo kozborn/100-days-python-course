@@ -9,7 +9,12 @@ import json
 current_word = None
 flip_timer = None
 
-words_df = pd.read_csv('./data/french_words.csv')
+try:
+    words_df = pd.read_csv('./data/words_to_learn.csv')
+except FileNotFoundError:
+    words_df = pd.read_csv('./data/french_words.csv')
+
+print(len(words_df))
 
 
 def accept():
