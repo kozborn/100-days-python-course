@@ -1,8 +1,6 @@
 import requests
 import pywhatkit
 
-API_KEY = "8b4b7b321bf06c80e8529a5a721890d2"
-
 ENDPOINT_1 = f"https://api.openweathermap.org/data/2.5/weather?lat=49.95&lon=19.86&appid={API_KEY}"
 ENDPOINT_2 = "https://api.openweathermap.org/data/2.5/forecast"
 
@@ -13,7 +11,6 @@ params = {
     'cnt': 4
 
 }
-
 
 response = requests.get(ENDPOINT_2, params=params)
 response.raise_for_status()
