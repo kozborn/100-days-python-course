@@ -83,5 +83,5 @@ next_card()
 window.mainloop()
 
 
-chancarjacekchanek
-chancarjacekchanek
+# chancarjacekchanek
+# chancarjacekchanek
