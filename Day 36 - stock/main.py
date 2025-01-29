@@ -3,9 +3,9 @@ import html
 import smtplib
 import requests
 import itertools
-from dotenv import load_dotenv
 import datetime as dt
 from stock_response import response
+from dotenv import load_dotenv
 load_dotenv("../.env")
 
 print(os.getenv("ALPHAVANTAGE_KEY"))
