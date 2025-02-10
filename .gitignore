@@ -7,3 +7,4 @@ course-remote-info.yaml
 ./Day 32/Birthday Wisher (Day 32) start/passwd.py
 ./passwd.py
 .env
+.venv
