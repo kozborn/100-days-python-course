@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Movie{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="heading">Select Movie</h1>
+    <div class="row">
+      {% for movie in movies %}
+
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top h-50" src="https://image.tmdb.org/t/p/w185{{movie.poster_path}}" alt="{{movie.title}}">
+          <div class="card-body">
+            <h5 class="card-title">{{movie.title}}</h5>
+            <p class="card-text text-truncate">{{movie.overview}}</p>
+              <div class="row">
+                  <div class="col-6">{{movie.vote_average}}</div>
+                  <div class="col-6 text-right">{{movie.release_date}}</div>
+              </div>
+              <form action="{{url_for('add_from_api', movie_id=movie.id)}}" method="post">
+                  <button class="btn btn-primary" type="submit">Add to my list</button>
+              </form>
+          </div>
+        </div>
+      {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
