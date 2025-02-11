@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block title %}Add A New Book{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+
+      <h1>Add a new book into the database</h1>
+      {{render_form(form, novalidate=True)}}
+	  <p class="space-above"><a class="btn btn-outline-primary mt-4" href="{{url_for('home')}}">Back to home</a></p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

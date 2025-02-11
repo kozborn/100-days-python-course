@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block title %}Add A New Book{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{book.title}} - {{book.author}} - {{book.rating}}</h1>
+    <a class="btn btn-outline-primary me-3" href="{{url_for('edit', book_id=book.id)}}">Edit</a><a class="btn btn-outline-primary" href="{{url_for('home')}}">Back to home</a>
+    <form action="{{url_for('delete', book_id=book.id)}}" method="post">
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+    </form>
+</div>
+{% endblock %}
