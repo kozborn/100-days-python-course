@@ -10,30 +10,6 @@ flip_timer = None
 
 BACKGROUND_COLOR = "#B1DDC6"
 
-# window = tk.Tk()
-# window.title("Watermarking App")
-# window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
-
-# canvas = tk.Canvas(
-#     window,
-#     width=800,
-#     height=526,
-#     bg=BACKGROUND_COLOR,
-#     borderwidth=0,
-#     highlightthickness=0,
-# )
-
-# word_text = canvas.create_text(400, 300, text="Test", font=("COURIER", 60, "bold"))
-# canvas.grid(row=0, column=0, columnspan=2)
-# file_input_button = tk.Button(
-#     window,
-#     text="Select File",
-#     command=askopenfilename,
-# )
-
-# file_input_button.grid(row=1, column=0)
-# window.mainloop()
-
 
 def resize_with_aspect_ratio(image, target_width=None, target_height=None):
     original_width, original_height = image.size
@@ -62,11 +38,15 @@ class App(Tk):
         self.title("Watermarking App")
         self.geometry("800x600")
         self.configure(bg=BACKGROUND_COLOR)
-
+        self.image = None
+        self.watermarked_image = None
+        self.filename = None
+        self.watermarked_image_preview = None
+        self.image_preview = None
         self.canvas = tk.Canvas(
             self,
             width=800,
-            height=526,
+            height=500,
             bg=BACKGROUND_COLOR,
             borderwidth=0,
             highlightthickness=0,
@@ -78,54 +58,105 @@ class App(Tk):
             command=self.select_file,
         )
         self.file_input_button.grid(row=1, column=0)
-        self.image_holder = None
+        self.save_button = tk.Button(
+            self,
+            text="Save Watermarked Image",
+            command=self.add_watermark_and_save_file,
+        )
+        self.save_button.grid(row=1, column=1)
+
+        self.watermark_text_input = tk.Entry(
+            self,
+            width=75,
+        )
+        self.watermark_text_input.grid(row=2, column=0, columnspan=2)
+        self.watermark_text_input.insert(0, "Enter watermark text here")
+        self.watermark_text_input.bind(
+            "<Return>", lambda event: self.draw_watermarked_preview()
+        )
+        self.refresh_button = tk.Button(
+            self,
+            text="Refresh Preview",
+            command=self.draw_watermarked_preview,
+        )
+        self.refresh_button.config(state="disabled")
+        self.refresh_button.grid(row=3, column=1, columnspan=1)
+
+    def add_watermark_and_save_file(self):
+        """Handle file saving."""
+        if self.image is None:
+            messagebox.showwarning("No Image", "Please select an image first.")
+            return
+        self.watermarked_image = self.image.copy()
+        if self.watermarked_image:
+
+            draw = ImageDraw.Draw(self.watermarked_image)
+
+            # Add watermark text (customize font size and position)
+            text_position = (10, 10)  # Top-left corner
+            draw.text(
+                text_position,
+                self.watermark_text_input.get(),
+                fill=(255, 255, 255, 128),
+            )
+
+            save_path = "watermarked_image_" + self.filename.split("/")[-1]
+            self.watermarked_image.save(save_path)
+            messagebox.showinfo(
+                "Save Complete",
+                f"The image has been saved as '{save_path}'.",
+            )
+        else:
+            messagebox.showwarning("No Image", "Please select an image first.")
 
     def select_file(self):
         """Handle file selection and display watermarked image."""
-        filename = askopenfilename()
-        if filename:
+        self.filename = askopenfilename()
+        if self.filename:
             # Load and resize the selected image
-            image = Image.open(filename)
-            resized_image = resize_with_aspect_ratio(image=image, target_width=400)
-
-            # Convert watermarked image to Tkinter-compatible format
-            watermarked_preview = resized_image.copy()
-            draw_on_preview = ImageDraw.Draw(watermarked_preview)
-
-            # Add watermark text (customize font size and position)
-            text_position = (10, 10)  # Top-left corner
-            draw_on_preview.text(
-                text_position, "Sample Watermark", fill=(255, 255, 255, 128)
+            self.image = Image.open(self.filename)
+            self.resized_image = resize_with_aspect_ratio(
+                image=self.image, target_width=400
             )
+            self.draw_preview()
+            self.draw_watermarked_preview()
+            self.refresh_button.config(state="normal")
+        else:
+            self.refresh_button.config(state="disabled")
 
-            # Store reference to prevent garbage collection
-            self.watermarked_image_holder = ImageTk.PhotoImage(watermarked_preview)
-            self.oryginal_image_holder = image
+    def draw_preview(self):
+        """Draw the preview of the original image."""
+        self.image_preview = ImageTk.PhotoImage(self.resized_image)
+        if self.image_preview:
+            self.canvas.delete("original")
+            self.canvas.create_image(400, 263, image=self.image_preview, anchor="e")
+            self.canvas.tag_lower("original")
 
-            # Display the original image on the canvas
-            self.image_holder = ImageTk.PhotoImage(resized_image)
-            self.canvas.create_image(400, 263, image=self.image_holder, anchor="e")
+    def draw_watermarked_preview(self):
+        """Draw the preview of the watermarked image."""
+        # Convert watermarked image to Tkinter-compatible format
+        watermarked_preview = self.resized_image.copy()
+        draw_on_preview = ImageDraw.Draw(watermarked_preview)
 
-            # Display the watermarked image on the canvas
+        # Add watermark text (customize font size and position)
+        text_position = (10, 10)  # Top-left corner
+        draw_on_preview.text(
+            text_position,
+            self.watermark_text_input.get(),
+            fill=(255, 255, 255, 128),
+        )
 
+        # Display the original image on the canvas
+
+        # Store reference to prevent garbage collection
+        self.watermarked_image_preview = ImageTk.PhotoImage(watermarked_preview)
+        # Display the watermarked image on the canvas
+        if self.watermarked_image_preview:
+            self.canvas.delete("watermarked")
             self.canvas.create_image(
-                400, 263, image=self.watermarked_image_holder, anchor="w"
+                400, 263, image=self.watermarked_image_preview, anchor="w"
             )
-
-            # Create a watermark on the oryginal image
-            watermarked_image = image.copy()
-            draw = ImageDraw.Draw(watermarked_image)
-
-            # Add watermark text (customize font size and position)
-            text_position = (10, 10)  # Top-left corner
-            draw.text(text_position, "Sample Watermark", fill=(255, 255, 255, 128))
-            # Save the watermarked image
-            watermarked_image.save("watermarked_image.png")
-            # Display a message box to confirm the watermarking
-            messagebox.showinfo(
-                "Watermarking Complete",
-                "The image has been watermarked and saved as 'watermarked_image.png'.",
-            )
+            self.canvas.tag_lower("watermarked")
 
 
 app = App()
