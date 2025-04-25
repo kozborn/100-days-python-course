@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from email.mime import image
 from tkinter import messagebox
@@ -17,6 +18,7 @@ class App(Tk):
         self.title("TypeSpeed App")
         self.geometry("800x600")
         self.configure(bg=BACKGROUND_COLOR)
+        self.highlight_tags = []
 
         self.text_field = tk.Text(self, height=10, width=70)
         self.text_field.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
@@ -30,24 +32,65 @@ class App(Tk):
         self.input_field.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
         self.input_field.config(font=("Courier", 12), wrap=tk.WORD)
         self.input_field.bind("<KeyPress>", self.on_key_press)
-        self.input_field.bind("<KeyRelease>", self.on_key_release)
+        self.input_field.bind("<Delete>", self.on_delete)
+        self.input_field.bind("<BackSpace>", self.on_backspace)
+        self.input_field.bind("<Return>", self.on_enter)
+
         self.input_field.focus()
+
+        self.label = tk.Label(self, text="Typing speed: 0 CPM")
+        self.label.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+        self.label.config(font=("Courier", 22), bg=BACKGROUND_COLOR)
+        self.label.config(fg="black")
+        self.start_time = None
+        self.char_count = 0
+
+    def on_enter(self, event):
+        pass
+
+    def on_backspace(self, event):
+        cursor_index = self.input_field.index(tk.INSERT)
+        prev_index = self.input_field.index(cursor_index + " - 1c")
+        self.text_field.tag_remove("green", prev_index, cursor_index)
+        self.text_field.tag_remove("red", prev_index, cursor_index)
+
+    def on_delete(self, event):
+        cursor_index = self.input_field.index(tk.INSERT)
+        self.text_field.tag_remove("green", cursor_index, tk.END)
+        self.text_field.tag_remove("red", cursor_index, tk.END)
 
     def on_key_press(self, event):
         # Check if the pressed key is a letter or space
-        print("Key pressed:", event.char)
-        current_index = f"1.0 + {len(self.input_field.get('1.0', tk.END).strip())}c"
-        print("Current index:", current_index)
-        self.text_field.tag_remove("highlight", "1.0", tk.END)
-        self.text_field.tag_add("highlight", "1.0", current_index)
-        self.text_field.tag_config("highlight", background="yellow")
+        cursor_index = self.input_field.index(tk.INSERT)
+        if event.char and event.char.isprintable():
+            self.char_count += 1
+            if self.start_time is None:
+                self.start_time = time.time()
 
-    def on_key_release(self, event):
-        # Check if the released key is a letter or space
-        pass
-        # if event.char.isalpha() or event.char == " " or not event.char:
-        #     self.text_field.tag_remove("highlight", "1.0", tk.END)
-        #     self.text_field.tag_config("highlight", background="white")
+            print(
+                "Key pressed:",
+                event.char,
+                " Quote char: ",
+                self.text_field.get(cursor_index, cursor_index + " + 1c"),
+            )
+
+            self.text_field.tag_config("green", background="green")
+            self.text_field.tag_config("red", background="red")
+
+            if event.char == self.text_field.get(cursor_index, cursor_index + " + 1c"):
+                self.text_field.tag_add("green", cursor_index, f"{cursor_index} + 1c")
+            else:
+                self.text_field.tag_add("red", cursor_index, f"{cursor_index} + 1c")
+
+            self.label.config(
+                text=f"Typing speed: {int(self.char_count / (time.time() - self.start_time) * 60)} CPM"
+            )
+
+            self.compare()
+
+    def compare(self):
+        if self.text_field.get("1.0", tk.END) == self.input_field.get("1.0", tk.END):
+            messagebox.showinfo("Success", "You typed the text correctly!")
 
 
 app = App()
