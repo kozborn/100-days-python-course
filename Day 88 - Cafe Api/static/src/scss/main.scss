@@ -219,20 +219,30 @@ p.overview {
 .cafe {
   position: relative;
   width: 100%;
+  .background-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    opacity: 0.25;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+  .cafe-details {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    img {
+      max-width: calc(100% - 60px);
+      height: auto;
+      object-fit: cover;
+      overflow: hidden;
+    }
+  }
 }
 
-.cafe .background-image {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  opacity: 0.25;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.cafe .cafe-details {
-  position: relative;
-  z-index: 2;
+.cafes-list {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
   padding: 20px;
 }

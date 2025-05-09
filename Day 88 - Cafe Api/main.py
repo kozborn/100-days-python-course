@@ -6,6 +6,7 @@ from sqlalchemy import Integer, String, Float
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, BooleanField, IntegerField
 from wtforms.validators import DataRequired
+from flask_assets import Environment, Bundle
 import requests
 from dotenv import load_dotenv
 import os
@@ -32,6 +33,14 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
+
+
+css = Bundle(
+    "src/scss/main.scss",  # Path to your main SCSS file (inside static folder)
+    filters="libsass",
+    output="dist/css/styles.css",  # Output CSS file
+    depends="src/scss/*.scss",  # Rebuild if any SCSS file changes
+)
 
 
 class ApiForm(FlaskForm):
@@ -96,7 +105,9 @@ class Cafe(db.Model):
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cafes.db"
 app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
+assets = Environment(app)
 Bootstrap5(app)
+assets.register("asset_css", css)
 db.init_app(app)
 # CREATE TABLE
 
@@ -153,6 +164,13 @@ def add_movie_api():
         )
         return render_template("select.html", movies=response.json()["results"])
     return render_template("add.html", form=form)
+
+
+@app.route("/cafe/<int:cafe_id>")
+def cafe(cafe_id):
+    cafe = db.session.query(Cafe).get_or_404(cafe_id)
+    cafes = db.session.execute(db.select(Cafe).order_by(Cafe.name)).scalars()
+    return render_template("cafe.html", cafe=cafe, cafes=cafes)
 
 
 # @app.route("/add_from_api/<int:movie_id>", methods=["POST"])

@@ -7,6 +7,13 @@
     <div class="card">
       <div class="front" style="background-image: url('{{cafe.img_url}}');">
         <p class="large">{{cafe.coffee_price}}</p>
+        <div>
+          {% if cafe.has_wifi%}
+          <i class="fas fa-wifi"></i>
+          {% else %}
+          <i class="fas fa-wifi-off"></i>
+          {% endif %}
+        </div>
       </div>
       <div class="back">
         <div>
@@ -16,8 +23,12 @@
             <i class="fas fa-star star"></i>
           </div>
           <div class="row w-100">
-            <div class="col-6"></div>
-            <div class="col-6"></div>
+            <div class="col-5"></div>
+            <div class="col-2">
+              <a href="{{ url_for('cafe', cafe_id=cafe.id) }}">
+                <i class="fas fa-edit">See details</i>
+            </div>
+            <div class="col-5"></div>
           </div>
         </div>
       </div>
