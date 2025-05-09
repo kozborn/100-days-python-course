@@ -53,10 +53,10 @@ class CafeForm(FlaskForm):
     location = StringField("Location", validators=[DataRequired()])
     map_url = StringField("Map URL", validators=[DataRequired()])
     img_url = StringField("Img  URL", validators=[DataRequired()])
-    has_wifi = BooleanField("Has WiFi", validators=[DataRequired()])
-    can_take_calls = BooleanField("Can take calls", validators=[DataRequired()])
-    has_sockets = BooleanField("Has Sockets", validators=[DataRequired()])
-    has_toilet = BooleanField("Has Toilet", validators=[DataRequired()])
+    has_wifi = BooleanField("Has WiFi")
+    can_take_calls = BooleanField("Can take calls")
+    has_sockets = BooleanField("Has Sockets")
+    has_toilet = BooleanField("Has Toilet")
     seats = StringField("Seats", validators=[DataRequired()])
     coffee_price = StringField("Coffee Price", validators=[DataRequired()])
     submit = SubmitField("Submit")
@@ -201,24 +201,32 @@ def cafe(cafe_id):
 #     return redirect(url_for("edit_movie", movie_id=movie_id))
 
 
-# @app.route("/edit/<int:movie_id>", methods=["GET", "POST"])
-# def edit_movie(movie_id):
-#     movie = db.session.query(Movie).get_or_404(movie_id)
-#     form = EditMovieForm(obj=movie)
-#     if form.validate_on_submit():
-#         movie.ranking = form.ranking.data
-#         movie.review = form.review.data
-#         db.session.commit()
-#         return redirect(url_for("home"))
-#     return render_template("edit.html", movie=movie, form=form)
+@app.route("/edit/<int:cafe_id>", methods=["GET", "POST"])
+def edit_cafe(cafe_id):
+    cafe = db.session.query(Cafe).get_or_404(cafe_id)
+    form = CafeForm(obj=cafe)
+    if form.validate_on_submit():
+        cafe.name = form.name.data
+        cafe.map_url = form.map_url.data
+        cafe.location = form.location.data
+        cafe.has_sockets = form.has_sockets.data
+        cafe.has_toilet = form.has_toilet.data
+        cafe.can_take_calls = form.can_take_calls.data
+        cafe.has_wifi = form.has_wifi.data
+        cafe.seats = form.seats.data
+        cafe.coffee_price = form.coffee_price.data
+        cafe.img_url = form.img_url.data
+        db.session.commit()
+        return redirect(url_for("home"))
+    return render_template("edit.html", cafe=cafe, form=form)
 
 
-# @app.route("/delete/<int:movie_id>", methods=["POST"])
-# def delete_movie(movie_id):
-#     movie = db.session.query(Movie).get_or_404(movie_id)
-#     db.session.delete(movie)
-#     db.session.commit()
-#     return redirect(url_for("home"))
+@app.route("/delete/<int:cafe_id>", methods=["DELETE"])
+def delete_cafe(cafe_id):
+    cafe = db.session.query(Cafe).get_or_404(cafe_id)
+    db.session.delete(cafe)
+    db.session.commit()
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
