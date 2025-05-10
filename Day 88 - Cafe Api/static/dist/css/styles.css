@@ -223,17 +223,111 @@ p.overview {
     top: 0;
     left: 0;
     z-index: 1; }
-  .cafe .cafe-details {
-    position: relative;
-    z-index: 2;
-    padding: 20px; }
-    .cafe .cafe-details img {
-      max-width: calc(100% - 60px);
-      height: auto;
-      object-fit: cover;
-      overflow: hidden; }
+
+.cafe-details {
+  position: relative;
+  z-index: 2;
+  padding: 20px; }
+  .cafe-details img {
+    width: 100%;
+    background-size: cover;
+    object-fit: cover;
+    overflow: hidden; }
 
 .cafes-list {
   max-height: calc(100vh - 140px);
   overflow-y: auto;
   padding: 20px; }
+
+.card-venue {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  margin-bottom: 48px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative; }
+
+.main-page-cafe-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  gap: 16px; }
+  .main-page-cafe-list .card-venue {
+    width: calc(25% - 16px);
+    min-width: calc(25% - 16px);
+    margin: 0;
+    padding: 0; }
+
+.cafe-list .card-venue {
+  width: 100% !important; }
+
+.card-venue-image {
+  position: relative;
+  height: 140px;
+  background-size: cover;
+  background-position: center; }
+
+.card-venue-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45); }
+
+.card-venue-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; }
+
+.card-venue-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-shadow: 5px 5px 15px black; }
+
+.card-venue-features {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1em;
+  margin-left: 8px; }
+
+.card-venue-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 8px 0 0 0;
+  display: flex;
+  align-items: center;
+  text-shadow: 5px 5px 15px black;
+  gap: 6px; }
+
+.card-venue-cta {
+  align-self: flex-end;
+  background: #2979ff;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; }
+
+.card-venue-cta:hover {
+  background: #1565c0;
+  color: #eaeaea;
+  text-decoration: none; }

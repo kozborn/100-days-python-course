@@ -21,41 +21,7 @@
           </svg>
         </a>
       </div>
-      <div class="cafes-list">
-        {% for cafe in cafes %}
-        <div class="cafe mb-4">
-          <div
-            class="background-image"
-            style="background-image: url('{{cafe.img_url}}'); background-size: cover; "
-          ></div>
-          <div class="cafe-details">
-            <div class="d-flex justify-content-start align-items-center">
-              <p class="mb-0">{{cafe.coffee_price}}</p>
-              {% include 'common/icons.html' %}
-            </div>
-            <div class="">
-              <div>
-                <div class="d-flex justify-content-start align-items-center">
-                  <div class="title">{{cafe.name}}</div>
-                  <div class="rating">
-                    <i class="fas fa-star star d-inline-block ml-4"></i>
-                    <label>{{cafe.rating}}</label>
-                  </div>
-                </div>
-                <div class="row w-100">
-                  <div class="col-8"></div>
-                  <div class="col-4">
-                    <a class="d-block text-end" href="{{ url_for('cafe', cafe_id=cafe.id) }}">
-                      <i class="fas fa-edit d-inline-block w-100 text-end">See details</i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
+      <div class="cafes-list">{% include 'common/cafe_list.html' %}</div>
     </div>
     <div class="col-8">
       <h1 class="heading">{{cafe.name}}</h1>
