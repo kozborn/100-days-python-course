@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block title %}Cafes{% endblock %} {% block content %}
+
+<div class="container text-center add">
+  <a class="btn btn-outline-primary" href="{{ url_for('login') }}">Login</a>
+  <a class="btn btn-outline-primary" href="{{ url_for('register') }}">Register</a>
+</div>
+
+{% endblock %}

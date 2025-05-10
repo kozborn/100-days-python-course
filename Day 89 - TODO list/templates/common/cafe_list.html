@@ -1,0 +1,32 @@
+{% for cafe in cafes %}
+<div class="card-venue">
+  <div class="card-venue-image" style="background-image: url('{{ cafe.img_url }}');">
+    <div class="card-venue-overlay"></div>
+    <div class="card-venue-content">
+      <div>
+        <div class="card-venue-header">
+          <span>{{ cafe.coffee_price }}</span>
+          <div class="card-venue-features">
+            {% if cafe.has_wifi %}
+            <span title="Wi-Fi"><i class="fa fa-wifi"></i></span>
+            {% endif %} {% if cafe.has_sockets %}
+            <span title="Power Sockets"><i class="fa fa-plug"></i></span>
+            {% endif %} {% if cafe.has_toilet %}
+            <span title="WC"><i class="fa fa-restroom"></i></span>
+            {% endif %}
+            <span>Seats: {{ cafe.seats }}</span>
+          </div>
+        </div>
+        <div class="card-venue-title">
+          {{ cafe.name }} {% if cafe.is_featured %}
+          <span title="Featured" style="color: gold">&#9733;</span>
+          {% endif %}
+        </div>
+      </div>
+      <a class="card-venue-cta" href="{{ url_for('cafe', cafe_id=cafe.id) }}">
+        <i class="fa fa-external-link-alt"></i> See details
+      </a>
+    </div>
+  </div>
+</div>
+{% endfor %}
