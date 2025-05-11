@@ -1,7 +1,16 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, abort
+from flask import (
+    Flask,
+    render_template,
+    redirect,
+    url_for,
+    request,
+    flash,
+    abort,
+    jsonify,
+)
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Float
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,37 +61,24 @@ css = Bundle(
 )
 
 
-class CafeForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    location = StringField("Location", validators=[DataRequired()])
-    map_url = StringField("Map URL", validators=[DataRequired()])
-    img_url = StringField("Img  URL", validators=[DataRequired()])
-    has_wifi = BooleanField("Has WiFi")
-    can_take_calls = BooleanField("Can take calls")
-    has_sockets = BooleanField("Has Sockets")
-    has_toilet = BooleanField("Has Toilet")
-    seats = StringField("Seats", validators=[DataRequired()])
-    coffee_price = StringField("Coffee Price", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-
 class User(UserMixin, db.Model):
+    __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(1000))
+    todo_items = relationship("TodoItem", back_populates="author")
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password, password)
 
 
-class Cafe(db.Model):
+class TodoItem(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     text: Mapped[str] = mapped_column(String, unique=False)
     done: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, db.ForeignKey("user.id"), nullable=True
-    )
+    author_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"))
+    author = relationship("User", back_populates="todo_items")
 
     from typing import Optional
 
@@ -90,13 +86,22 @@ class Cafe(db.Model):
         self,
         text: Optional[str] = None,
         done: Optional[bool] = False,
+        author: Optional[User] = None,
     ):
         self.text = text if text is not None else ""
         self.done = done if done is not None else False
+        self.author = author if author is not None else None
+        self.author_id = author.id
+
+
+class TodoItemForm(FlaskForm):
+    text = StringField("Text", validators=[DataRequired()])
+    done = BooleanField("Done")
+    submit = SubmitField("Submit")
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cafes.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///todos.db"
 app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
 assets = Environment(app)
 login_manager = LoginManager()
@@ -117,16 +122,60 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    form = TodoItemForm()
+    if current_user.is_authenticated:
+        todo_list = (
+            TodoItem.query.filter_by(author_id=current_user.id)
+            .order_by(TodoItem.id.desc())
+            .all()
+        )
+        if request.method == "POST":
+            print("POST")
+
+            if form.validate_on_submit():
+
+                todo_item = TodoItem(
+                    text=form.text.data,
+                    done=form.done.data,
+                    author=current_user,
+                )
+                db.session.add(todo_item)
+                db.session.commit()
+                return redirect(url_for("home"))
+
+    else:
+        todo_list = []
+    return render_template("index.html", todo_list=todo_list, form=form)
 
 
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("home"))
+@app.route("/toggle/<int:todo_id>", methods=["POST"])
+def toggle_todo(todo_id):
+    data = request.get_json()
+    todo = TodoItem.query.get_or_404(todo_id)
+
+    todo.done = data["done"]
+    db.session.commit()
+    return jsonify({"success": True, "done": todo.done})
+
+
+@app.route("/edit/<int:todo_id>", methods=["GET", "POST"])
+def edit_todo(todo_id):
+    todo = TodoItem.query.get_or_404(todo_id)
+    form = TodoItemForm(
+        text=todo.text,
+        done=todo.done,
+    )
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            todo.text = form.text.data
+            todo.done = form.done.data
+            db.session.commit()
+            return redirect(url_for("home"))
+
+    return render_template("edit.html", form=form, todo=todo)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -156,7 +205,7 @@ def login():
             # if not url_has_allowed_host_and_scheme(next, request.host):
             #     return abort(400)
 
-            return redirect(next or url_for("secrets"))
+            return redirect(next or url_for("home"))
         else:
             flash("Username or password incorrect.")
     return render_template("user/login.html")
@@ -176,68 +225,42 @@ def register():
 
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for("secrets", user={user}))
+        return redirect(url_for("home", user={user}))
 
     return render_template("user/register.html")
 
 
-@app.route("/add", methods=["GET", "POST"])
-def add_cafe():
-    form = CafeForm()
+@login_required
+@app.route("/add", methods=["POST"])
+def add_todo_item():
+    form = TodoItemForm()
 
     if form.validate_on_submit():
 
-        cafe = Cafe(
-            name=form.name.data,
-            map_url=form.map_url.data,
-            location=form.location.data,
-            has_sockets=form.has_sockets.data,
-            has_toilet=form.has_toilet.data,
-            can_take_calls=form.can_take_calls.data,
-            has_wifi=form.has_wifi.data,
-            seats=form.seats.data,
-            coffee_price=form.coffee_price.data,
-            img_url=form.img_url.data,
+        todo_item = TodoItem(
+            text=form.text.data,
+            done=form.done.data,
+            author=current_user,
         )
-        db.session.add(cafe)
+        db.session.add(todo_item)
         db.session.commit()
         return redirect(url_for("home"))
 
     return render_template("add.html", form=form)
 
 
-@app.route("/cafe/<int:cafe_id>")
-def cafe(cafe_id):
-    cafe = db.session.query(Cafe).get_or_404(cafe_id)
-    cafes = db.session.execute(db.select(Cafe).order_by(Cafe.name)).scalars()
-    return render_template("cafe.html", cafe=cafe, cafes=cafes)
-
-
-@app.route("/edit/<int:cafe_id>", methods=["GET", "POST"])
-def edit_cafe(cafe_id):
-    cafe = db.session.query(Cafe).get_or_404(cafe_id)
-    form = CafeForm(obj=cafe)
-    if form.validate_on_submit():
-        cafe.name = form.name.data
-        cafe.map_url = form.map_url.data
-        cafe.location = form.location.data
-        cafe.has_sockets = form.has_sockets.data
-        cafe.has_toilet = form.has_toilet.data
-        cafe.can_take_calls = form.can_take_calls.data
-        cafe.has_wifi = form.has_wifi.data
-        cafe.seats = form.seats.data
-        cafe.coffee_price = form.coffee_price.data
-        cafe.img_url = form.img_url.data
-        db.session.commit()
-        return redirect(url_for("home"))
-    return render_template("edit.html", cafe=cafe, form=form)
-
-
-@app.route("/delete/<int:cafe_id>", methods=["DELETE"])
-def delete_cafe(cafe_id):
-    cafe = db.session.query(Cafe).get_or_404(cafe_id)
-    db.session.delete(cafe)
+@app.route("/delete/<int:todo_item_id>", methods=["POST"])
+def delete_todo_item(todo_item_id):
+    todo_item = db.session.query(TodoItem).get_or_404(todo_item_id)
+    db.session.delete(todo_item)
     db.session.commit()
+    return redirect(url_for("home"))
+
+
+@login_required
+@app.route("/logout")
+def logout():
+    logout_user()
     return redirect(url_for("home"))
 
 

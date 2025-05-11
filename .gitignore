@@ -8,5 +8,5 @@ course-remote-info.yaml
 ./passwd.py
 .env
 .venv
-.static/.webassets-cache
+**/static/.webassets-cache/*
 *.pyc

@@ -46,14 +46,16 @@ login_manager.init_app(app)
 
 # TODO: Configure Flask-Login
 
-gravatar = Gravatar(app,
-                    size=100,
-                    rating='g',
-                    default='retro',
-                    force_default=False,
-                    force_lower=False,
-                    use_ssl=False,
-                    base_url=None)
+gravatar = Gravatar(
+    app,
+    size=100,
+    rating="g",
+    default="retro",
+    force_default=False,
+    force_lower=False,
+    use_ssl=False,
+    base_url=None,
+)
 
 
 # CREATE DATABASE
@@ -231,6 +233,7 @@ def edit_post(post_id):
         return redirect(url_for("show_post", post_id=post.id))
     return render_template("make-post.html", form=edit_form, is_edit=True)
 
+
 @login_required
 @app.route("/comment-post/<int:post_id>", methods=["POST"])
 def comment_post(post_id):
@@ -248,6 +251,7 @@ def comment_post(post_id):
         db.session.add(comment)
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
+
 
 # TODO: Use a decorator so only an admin user can delete a post
 @app.route("/delete/<int:post_id>")
