@@ -10,3 +10,9 @@ course-remote-info.yaml
 .venv
 **/static/.webassets-cache/*
 *.pyc
+
+
+Day 91 - Text to speech/productivity.pdf
+Day 91 - Text to speech/Eloquent_JavaScript.pdf
+*.mp3
+*.pdf
