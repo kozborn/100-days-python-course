@@ -28,8 +28,10 @@ a {
   text-align: center; }
 
 p {
-  color: #ee6f57;
   text-align: center; }
+
+.text-xs {
+  font-size: 11px; }
 
 .box {
   position: absolute;

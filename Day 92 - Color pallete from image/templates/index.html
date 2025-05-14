@@ -1,7 +1,49 @@
 {% extends 'base.html' %} {% block title %}Color pallete{% endblock %} {% block content %} {% from
-'bootstrap5/form.html' import render_form %}
-<div class="container text-center">
+'bootstrap5/form.html' import render_form %} {% from 'macros.html' import rgb_to_hex %}
+<div class="container-fluid text-center" style="max-height: calc(100vh - 60px); overflow: auto">
   <h1 class="display-4 my-4"></h1>
+  <div class="container">
+    <div class="row">
+      <div class="col-3"></div>
+      <div class="col-6">{{render_form(form)}}</div>
+      <div class="col-3"></div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-sm-5">
+        {%if filename %}
+        <div class="card p-2">
+          <img
+            src="{{ url_for('static', filename='uploads/' + filename) }}"
+            alt="Placeholder Image"
+            class="img-fluid"
+          />
+        </div>
+        {% endif %}
+      </div>
+      <div class="col-sm-7">
+        {% if colors %}
+        <div class="card p-2">
+          <h3>Color Palette</h3>
+          <div class="row">
+            {% for color in colors[0:12] %}
+            <div class="col-2 mb-2">
+              <div
+                class="small"
+                style="background-color: rgb({{color[0]}}); width: 100%; height: 40px"
+              ></div>
+              <p class="text-xs">rgb({{ color[0] }}); {{color[1]}}</p>
+              <p class="text-xs">
+                hex({{rgb_to_hex(color[0].split(',')[0] | int, color[0].split(',')[1] | int,
+                color[0].split(',')[2] | int)}})
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
